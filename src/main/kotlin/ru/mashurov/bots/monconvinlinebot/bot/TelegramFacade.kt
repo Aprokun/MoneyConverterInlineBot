@@ -15,10 +15,16 @@ class TelegramFacade {
         if (update.hasInlineQuery()) {
             val inlQueryParams = update.inlineQuery.query.split(" ")
             if (inlQueryParams.size == 2) {
-                return AnswerInlineQuery(
-                    update.inlineQuery.id,
-                    changer.change(inlQueryParams[0].toDouble(), inlQueryParams[1])
-                )
+                return when (inlQueryParams[1]) {
+                    "usd" -> AnswerInlineQuery(
+                        update.inlineQuery.id,
+                        changer.change(inlQueryParams[0].toDouble())
+                    )
+                    else -> AnswerInlineQuery(
+                        update.inlineQuery.id,
+                        changer.change(inlQueryParams[0].toDouble(), inlQueryParams[1])
+                    )
+                }
             }
         }
 
