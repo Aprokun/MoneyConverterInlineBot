@@ -49,7 +49,7 @@ class CurrencyParser {
         val allCurrencies = mutableMapOf<String, CurrencyElement>()
         FileInputStream(File(fileName)).use { fin ->
             ObjectInputStream(fin).use { ois ->
-                var cnt = 20
+                var cnt = 167
                 while (cnt-- > 0) {
                     val cur = ois.readObject() as CurrencyElement
                     allCurrencies[cur.code] = cur
