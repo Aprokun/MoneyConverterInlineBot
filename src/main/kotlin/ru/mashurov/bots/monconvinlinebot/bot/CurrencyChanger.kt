@@ -13,15 +13,22 @@ class CurrencyChanger {
 
     fun change(valFrom: Double, curFrom: String): List<InlineQueryResultArticle> {
         val allDollarCurrencies = currencyParser.getListAllCurrencyValues()
-        val dollarToCurFrom =
-            allDollarCurrencies.find { element -> element.code == curFrom.uppercase(Locale.ENGLISH) }!!.value
+
+        val curFromUppercase = curFrom.uppercase(Locale.ENGLISH)
+        val dollarToCurFrom = allDollarCurrencies[curFromUppercase]!!.value
         val result = mutableListOf<InlineQueryResultArticle>()
 
-        for ((id, cur) in allDollarCurrencies.withIndex()) {
-            val dollarToCurTo = cur.value
+        for ((id, key) in allDollarCurrencies.keys.minus(curFromUppercase).withIndex()) {
+            val currency = allDollarCurrencies[key]!!
+            val dollarToCurTo = currency.value
             val crossCurrency = dollarToCurTo / dollarToCurFrom
             result.add(InlineQueryResultArticle(
-                id.toString(), cur.name, InputTextMessageContent((valFrom * crossCurrency).toString())
+                id.toString(),
+                currency.name,
+                InputTextMessageContent(
+                    String.format("%.2f ", valFrom * crossCurrency) +
+                            key.lowercase(Locale.ENGLISH)
+                )
             ))
         }
 
@@ -32,9 +39,14 @@ class CurrencyChanger {
         val allDollarCurrencies = currencyParser.getListAllCurrencyValues()
 
         val result = mutableListOf<InlineQueryResultArticle>()
-        for ((id, cur) in allDollarCurrencies.withIndex()) {
+        for ((id, key) in allDollarCurrencies.keys.minus("USD").withIndex()) {
+            val currency = allDollarCurrencies[key]!!
             result.add(InlineQueryResultArticle(
-                id.toString(), cur.name, InputTextMessageContent(cur.convert(valFrom).toString())
+                id.toString(),
+                currency.name,
+                InputTextMessageContent(String.format("%.2f ", currency.convert(valFrom)) +
+                        key.lowercase(Locale.ENGLISH)
+                )
             ))
         }
 

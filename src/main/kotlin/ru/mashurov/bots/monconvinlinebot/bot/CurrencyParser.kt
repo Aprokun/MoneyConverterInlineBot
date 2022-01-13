@@ -14,12 +14,12 @@ class CurrencyParser {
     @Value("\${source.currency.data.file}")
     private lateinit var fileName: String
 
-    fun getListAllCurrencyValues(): List<CurrencyElement> = readAllDollarCurrencies()
+    fun getListAllCurrencyValues(): Map<String, CurrencyElement> = readAllDollarCurrencies()
 
     @Scheduled(fixedDelay = 1800000)
     private fun writeAllDollarCurrencies() {
         val document = Jsoup.connect(url).get()
-        val allCurrencyElements = document.select("div.item.row").subList(0, 20)
+        val allCurrencyElements = document.select("div.item.row")
 
         val allCurrencies = mutableListOf<CurrencyElement>()
         for (elem in allCurrencyElements) {
@@ -35,7 +35,6 @@ class CurrencyParser {
         }
 
         val file = File(fileName)
-        file.createNewFile()
 
         FileOutputStream(file).use { fos ->
             ObjectOutputStream(fos).use { oos ->
@@ -46,12 +45,15 @@ class CurrencyParser {
         }
     }
 
-    private fun readAllDollarCurrencies(): List<CurrencyElement> {
-        val allCurrencies = mutableListOf<CurrencyElement>()
+    private fun readAllDollarCurrencies(): Map<String, CurrencyElement> {
+        val allCurrencies = mutableMapOf<String, CurrencyElement>()
         FileInputStream(File(fileName)).use { fin ->
             ObjectInputStream(fin).use { ois ->
                 var cnt = 20
-                while (cnt-- > 0) allCurrencies.add(ois.readObject() as CurrencyElement)
+                while (cnt-- > 0) {
+                    val cur = ois.readObject() as CurrencyElement
+                    allCurrencies[cur.code] = cur
+                }
             }
         }
 

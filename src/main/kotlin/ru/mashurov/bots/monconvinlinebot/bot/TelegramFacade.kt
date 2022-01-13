@@ -14,7 +14,7 @@ class TelegramFacade {
     fun handleInlineQuery(update: Update): BotApiMethod<*>? {
         if (update.hasInlineQuery()) {
             val inlQueryParams = update.inlineQuery.query.split(" ")
-            if (inlQueryParams.size == 2) {
+            if (inlQueryParams.size == 2 && inlQueryParams[1].length == 3) {
                 return when (inlQueryParams[1]) {
                     "usd" -> AnswerInlineQuery(
                         update.inlineQuery.id,
