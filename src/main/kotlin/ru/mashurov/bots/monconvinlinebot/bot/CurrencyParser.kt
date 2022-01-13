@@ -11,6 +11,9 @@ class CurrencyParser {
     @Value("\${source.currency.data.url}")
     private lateinit var url: String
 
+    @Value("\${source.currency.data.file}")
+    private lateinit var fileName: String
+
     fun getListAllCurrencyValues(): List<CurrencyElement> = readAllDollarCurrencies()
 
     @Scheduled(fixedDelay = 1800000)
@@ -31,11 +34,11 @@ class CurrencyParser {
             allCurrencies.add(CurrencyElement(name, code, value))
         }
 
-        val file = File("currencies")
+        val file = File(fileName)
         file.createNewFile()
 
-        FileOutputStream(file).use { fout ->
-            ObjectOutputStream(fout).use { oos ->
+        FileOutputStream(file).use { fos ->
+            ObjectOutputStream(fos).use { oos ->
                 for (curr in allCurrencies) {
                     oos.writeObject(curr)
                 }
@@ -44,10 +47,8 @@ class CurrencyParser {
     }
 
     private fun readAllDollarCurrencies(): List<CurrencyElement> {
-        val file = File("currencies")
-
         val allCurrencies = mutableListOf<CurrencyElement>()
-        FileInputStream(file).use { fin ->
+        FileInputStream(File(fileName)).use { fin ->
             ObjectInputStream(fin).use { ois ->
                 var cnt = 20
                 while (cnt-- > 0) allCurrencies.add(ois.readObject() as CurrencyElement)
